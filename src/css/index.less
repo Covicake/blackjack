@@ -1,30 +1,35 @@
-.mesa{
-    margin: auto;
-    width: 700px;
-    height: 450px;
-    background: green;
+// out:  ../../dist/css/index.min.css, compress: true, autoprefixer: >5%
+
+
+.dimensiones(@wid, @heig){
+    width: @wid;
+    height: @heig;
+}
+
+.setFlex(@just, @alig, @direc){
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+    flex-direction: @direc;
+    justify-content: @just;
+    align-items: @alig;
+}
+
+.mesa{
+    .dimensiones(700px, 450px);
+    .setFlex(space-around, center, column);
+    margin: auto;
+    background: green;
 }
 
 .centro{
-    width: 300px;
-    height: 150px;
+    .dimensiones(300px, 150px);
+    .setFlex(center, center, row);
     border: 2px solid white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .carta{
-    height: 125px;
-    width: 90px;
+    .dimensiones(90px, 125px);
+    .setFlex(space-between, flex-start, column);
     border: 2px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     background: white;
   }
 
@@ -37,28 +42,17 @@
 }
 
 .jugador{
-    display: flex;
-    flex-direction: row;
+    .setFlex(space-around, flex-start, row);
     width: 95%;
-    justify-content: space-around;
 }
 
 .casa{
-    display: flex;
-    flex-direction: row;
+    .setFlex(space-around, flex-start, row);
     width: 95%;
-    justify-content: space-around;
-}
-
-.reves{
-    background: black;
 }
 
 .botonera{
+    .dimensiones(700px, 60px);
+    .setFlex(space-around, flex-end, row);
     margin: auto;
-    width: 700px;
-    height: 60px;
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-end;
 }
