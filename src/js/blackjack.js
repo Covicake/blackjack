@@ -21,6 +21,28 @@ class Carta{
       this.palo = palo;
   }
 
+  /**
+   * Metodo para conseguir un simbolo que representa el palo de la carta
+   * @return {String}
+   */
+  getSymbol(){
+    let symbol;
+    switch(this.palo){
+      case "C":
+      symbol = 	"&#x2764";
+        break;
+      case "R":
+      symbol = "&#9830";
+        break;
+      case "T":
+        symbol = "&#9827";
+        break;
+      default:
+        symbol = "&#9824";
+        break;
+    }
+    return symbol;
+  }
 }
 
 /**Clase que representa una baraja de cartas */
@@ -38,12 +60,12 @@ class Baraja{
   barajar(){
     let palo = ["T", "P", "C", "R"];
     let carta;
-    for(let i=0; i<palo.length; i++){    //Cada palo se combina con los números del 1 al 13.
+    palo.forEach(p =>{
       for(let j=1; j<=13; j++){
-        carta = new Carta(j, palo[i])
+        carta = new Carta(j, p)
         this.baraja.push(carta);         //Se añade la carta.
       }
-    }
+    });    //Cada palo se combina con los números del 1 al 13.
   }
 
   /**
@@ -90,6 +112,7 @@ class Jugador{
   addCard(carta){
     this.mano.push(carta);
     this.puntuacion += carta.valor;   //Cada vez que recibe una carta nueva, se suma su valor a puntuacion
+    this.drawCard(carta);
   }
 
   drawCard(carta){
@@ -101,9 +124,11 @@ class Jugador{
 
     textoSup.classList.add("texto_superior");
     textoInf.classList.add("texto_inferior");
+    
+    let symbol = carta.getSymbol();
 
-    textoSup.textContent = `${carta.valor}${carta.palo}`;
-    textoInf.textContent = `${carta.valor}${carta.palo}`;
+    textoSup.innerHTML = `${carta.valor} ${symbol}`;
+    textoInf.innerHTML = `${carta.valor} ${symbol}`;
 
     card.appendChild(textoSup);
     card.appendChild(textoInf);
@@ -138,19 +163,13 @@ class Crupier extends Jugador{
    * @param {Baraja.baraja} baraja El array que contiene las cartas de la baraja que se usa para repartir.
    */
   repartir(baraja){
-    for(let i=0; i<this.jugadores.length; i++){
-      if(this.jugadores[i].plantado === false){
-        let carta = baraja.getCarta();
-        this.jugadores[i].addCard(carta);
-        this.jugadores[i].drawCard(carta);
+    this.jugadores.forEach(j=>{
+      if (!j.plantado){
+        j.addCard(baraja.getCarta());
       }
+    });
+      this.addCard(baraja.getCarta());
     }
-    if(this.plantado===false){
-      let carta = baraja.getCarta();
-      this.addCard(carta);
-      this.drawCard(carta);
-    }
-  }
 
   /**
    * Metodo para comprobar si la partida ha terminado
@@ -163,25 +182,38 @@ class Crupier extends Jugador{
    * Cuando la partida acaba, se comprueba qué jugador obtuvo una puntuacion mas cercana a 21.
    */
   fin_partida(){
-    let indice = 0;
-    for(let i=0; i<this.jugadores.length; i++){
-        if(Math.abs(21-this.jugadores[i].puntuacion) < Math.abs(21-this.jugadores[indice].puntuacion)){
-          indice = i
-        }
-    }
-    if(Math.abs(21-this.puntuacion) < Math.abs(21-this.jugadores[indice].puntuacion)){
-      elems.marcador.textContent += "\n Gana: La " + this.nombre;
-      //console.log("Gana: La " + this.nombre);
-    }else{
-      elems.marcador.textContent += "\n Gana: " + this.jugadores[0].nombre;
-      //console.log("Gana: " + this.jugadores[indice].nombre);
-    }
+    this.jugadores.forEach(j=>{
+      if(j.puntuacion >= 21 && this.puntuacion >= 21){
+        elems.marcador.textContent += "Partida nula";
+      }else if((j.puntuacion > this.puntuacion || this.puntuacion >= 21) && j.puntuacion <= 21){
+        elems.marcador.textContent += "Gana: " + j.nombre;
+      }else if((this.puntuacion > j.puntuacion || j.puntuacion >=21) && this.puntuacion <= 21){
+        elems.marcador.textContent += "Gana: La " + this.nombre;
+      }
+    });
+    elems.botonCarta.textContent = "Nueva partida";
+    elems.botonCarta.onclick = nuevaPartida;
   }
 
   drawCard(carta){
     let card = document.createElement("div");
-    card.classList.add("carta", "reves");
+    card.classList.add("carta");
     elems.manoCrupier.appendChild(card);
+
+    let textoSup = document.createElement("div");
+    let textoInf = document.createElement("div");
+
+    textoSup.classList.add("texto_superior");
+    textoInf.classList.add("texto_inferior");
+    
+    let symbol = carta.getSymbol();
+
+    textoSup.innerHTML = `${carta.valor} ${symbol}`;
+    textoInf.innerHTML = `${carta.valor} ${symbol}`;
+
+    card.appendChild(textoSup);
+    card.appendChild(textoInf);    
+
   }
 
 
@@ -189,6 +221,11 @@ class Crupier extends Jugador{
 
 
 //-------------------------------------------INICIO----------------------------------------------
+
+let baraja;
+let jugador1;
+let crupier;
+nuevaPartida();
 
 function repartir(){
   crupier.repartir(baraja);
@@ -200,15 +237,21 @@ function plantarse(){
   crupier.fin_partida();
 }
 
-//Crear baraja
-let baraja = new Baraja();
-baraja.barajar();
+function nuevaPartida(){
+  baraja = new Baraja();
+  baraja.barajar();
 
-//Creacion jugadores
-let jugador1 = new Jugador("Fernando");
-let crupier = new Crupier();
+  jugador1 = new Jugador("Fernando");
+  crupier = new Crupier();
+  crupier.addPlayer(jugador1);
 
-crupier.addPlayer(jugador1);
+  elems.marcador.textContent = "";
+  elems.manoCrupier.textContent = "";
+  elems.manoJugador.textContent = "";
+  elems.botonCarta.textContent = "Pedir carta";
+  elems.botonCarta.onclick = repartir;
+}
+
 
 //Inicio partida
 
