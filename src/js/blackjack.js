@@ -123,7 +123,7 @@ class Crupier extends Jugador{
 
   fin_partida(){
     this.jugadores.forEach(j=>{
-      if(j.puntuacion >= 21 && this.puntuacion >= 21){
+      if(j.puntuacion > 21 && this.puntuacion > 21){
         elems.marcador.textContent += " Partida nula";
       }else if((j.puntuacion > this.puntuacion || this.puntuacion > 21) && j.puntuacion <= 21){
         elems.marcador.textContent += " Gana: " + j.nombre;
